@@ -1,9 +1,14 @@
 package com.example.demo_esercizio_04;
 
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,12 +22,6 @@ public class CarController {
         return carRepository.findAll();
     }
 
-    @PostMapping("/create")
-    public CarEntity postCars() {
-        CarEntity newCar = new CarEntity("fiat","macchina brutta", CarType.BENZINA, CarColor.NERA);
-        carRepository.save(newCar);
-        return newCar;
-    }
 
     @GetMapping("/oneCar/{id}")
     public ResponseEntity<CarEntity> getOneCar(@PathVariable Long id) {
@@ -61,6 +60,22 @@ public class CarController {
     @DeleteMapping("/deleteAll")
     public void deleteOneCar() {
         carRepository.deleteAll();
+    }
+    @GetMapping("byName")
+    public List<CarEntity> getByName(@RequestParam String name) {
+            return carRepository.findByModelName(name);
+    }
+    @GetMapping("byType")
+    public List<CarEntity> getByType(@RequestParam CarType type) {
+        return carRepository.findByType(type);
+    }
+    @GetMapping("paginated")
+    public List<CarEntity> getPaginatedCar(@Nullable @RequestParam String name, @RequestParam int page, @RequestParam int length ) {
+        if(name != null && !name.isBlank()){
+            return carRepository.findByModelName(name,  PageRequest.of(page, length));
+        }else{
+            return new ArrayList<>();
+        }
     }
 }
 
